@@ -25,7 +25,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, actions,
 )
 
 app = Flask(__name__)
@@ -65,10 +65,13 @@ def callback():
         if not isinstance(event.message, TextMessage):
             continue
 
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=event.message.text)
-        )
+        if event.message.text == "Leave group":
+            group_id = event.source.group_id
+            member_ids_res = line_bot_api.get_group_member_ids(group_id)
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=member_ids_res.member_ids)
+             )
 
     return 'OK'
 
